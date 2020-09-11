@@ -3,8 +3,9 @@ import { Condition } from '../../components';
 import { CKBox, CKBadge, CKButton } from '@clearkit/react';
 import Caret from "@clearkit/icons/glyphs/Caret";
 import AddBlock from "@clearkit/icons/glyphs/AddBlock";
+import Trash from "@clearkit/icons/glyphs/Trash";
 
-export const Group = ({ index, groupType, groupSetType, buildGroupString }) => {
+export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupString }) => {
 
    const [conditions, setConditions] = useState(['']);
    const buildQueryString = (condition, conditionIndex) => {
@@ -28,6 +29,11 @@ export const Group = ({ index, groupType, groupSetType, buildGroupString }) => {
       setConditions([...conditions, '']);
    }
 
+   const removeCondition = (index) => {
+      const remainingConditions = conditions.filter((condition, i) => i !== index);
+      setConditions(remainingConditions);
+   }
+
    const [type, setType] = useState('AND');
    const handleSetType = () => {
       const updatedType = type === 'AND' ? 'OR' : 'AND';
@@ -42,9 +48,9 @@ export const Group = ({ index, groupType, groupSetType, buildGroupString }) => {
 
    useEffect(() => {
       buildGroupString(conditions, index);
-   }, [conditions, type])
+   }, [conditions, type]);
 
-   console.log("GROUP CONDITIONS: ", conditions)
+   console.log("GROUP CONDITIONS: ", conditions);
 
    return (
       <div className="mx-2 mb-2 flex items-center">
@@ -62,6 +68,7 @@ export const Group = ({ index, groupType, groupSetType, buildGroupString }) => {
                   type={type}
                   setType={handleSetType}
                   enrichmentType="company"
+                  removeCondition={removeCondition}
                   buildQueryString={buildQueryString}
                />
             ))}
@@ -72,6 +79,14 @@ export const Group = ({ index, groupType, groupSetType, buildGroupString }) => {
                   leftIcon={<AddBlock />}
                   onClick={addCondition}>
                   Add condition
+               </CKButton>
+               <CKButton
+                  variant="tertiary"
+                  variantColor="blue"
+                  leftIcon={<Trash />}
+                  onClick={() => removeGroup(index)}
+               >
+                  Remove group
                </CKButton>
             </div>
          </CKBox>
