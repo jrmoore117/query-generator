@@ -17,7 +17,7 @@ const App = () => {
   };
 
   return (
-    <div className="bg-gray-0 min-h-screen">
+    <div className="bg-gray-0 min-h-screen" style={{minWidth: '1000px'}}>
       <div className="py-5 px-10 pb-2 bg-white flex">
         <Clearbit height="32px" width="32px" className="align-middle mr-2" />
         <h1 className="text-xl font-semibold text-gray-900">Query Generator</h1>
