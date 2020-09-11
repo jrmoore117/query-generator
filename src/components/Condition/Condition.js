@@ -1,11 +1,19 @@
 import React, { memo, useState, useEffect } from 'react';
 import Caret from "@clearkit/icons/glyphs/Caret";
+import Trash from "@clearkit/icons/glyphs/Trash";
 import Companies from "@clearkit/icons/nav/Companies";
-import { CKSelect, CKMultiPicker, CKBadge } from '@clearkit/react';
+import { CKSelect, CKMultiPicker, CKBadge, CKButton } from '@clearkit/react';
 import enrichment from '../../data/enrichment';
 import operators from '../../data/operators';
 
-export const Condition = memo(({ index, type, setType, enrichmentType, buildQueryString }) => {
+export const Condition = memo(({
+   index,
+   type,
+   setType,
+   enrichmentType,
+   removeCondition,
+   buildQueryString
+}) => {
 
    const [condition, setCondition] = useState({
       attribute: '',
@@ -33,7 +41,7 @@ export const Condition = memo(({ index, type, setType, enrichmentType, buildQuer
                   items={enrichment[enrichmentType].attributes}
                   leftIcon={<Companies height={17} width={17} />}
                   selectedItem={condition.attribute}
-                  onSelectedItemChange={changes => setCondition({...condition, attribute: changes.selectedItem})}
+                  onSelectedItemChange={changes => setCondition({ ...condition, attribute: changes.selectedItem })}
                />
             </div>
             <div className="col-span-1">
@@ -42,7 +50,7 @@ export const Condition = memo(({ index, type, setType, enrichmentType, buildQuer
                   itemToString={item => (item ? item.label : '')}
                   items={condition.attribute ? operators[condition.attribute.type] : []}
                   selectedItem={condition.operator}
-                  onSelectedItemChange={changes => setCondition({...condition, operator: changes.selectedItem})}
+                  onSelectedItemChange={changes => setCondition({ ...condition, operator: changes.selectedItem })}
                   isDisabled={condition.attribute ? false : true}
                />
             </div>
@@ -52,11 +60,18 @@ export const Condition = memo(({ index, type, setType, enrichmentType, buildQuer
                   itemToString={item => (item ? item.label : '')}
                   items={condition.operator ? enrichment[enrichmentType][condition.attribute.value] : []}
                   selectedItems={condition.values}
-                  onSelectedItemsChange={changes => setCondition({...condition, values: changes.selectedItems})}
+                  onSelectedItemsChange={changes => setCondition({ ...condition, values: changes.selectedItems })}
                   isDisabled={condition.operator ? false : true}
                />
             </div>
          </div>
+         <CKButton
+            variant="tertiary"
+            className="p-1 ml-1"
+            onClick={() => removeCondition(index)}
+         >
+            <Trash />
+         </CKButton>
       </div>
    );
 });
