@@ -6,26 +6,39 @@ import AddBlock from "@clearkit/icons/glyphs/AddBlock";
 
 export const Panel = ({ companyPanel, personPanel }) => {
 
-   const [conditions, setConditions] = useState(['']);
+   const [conditions, setConditions] = useState([{
+      id: Math.random(),
+      queryString: '',
+   }]);
+   // new args - conditions, setConditions, index > use conditions[index] to replace current condition arg
+   // Move to utils/helpers/buildConditionString.js > import wehre
    const buildQueryString = (condition, index) => {
       const { attribute, operator, values } = condition;
-      let queryString = '';
+      let valuesString = '';
       values.forEach((value, i) => {
          i === values.length - 1
-            ? queryString += `  '${value.value}'`
-            : queryString += `  '${value.value}',\n`
+            ? valuesString += `  '${value.value}'`
+            : valuesString += `  '${value.value}',\n`
       });
-      const updatedQueryString = `${type} ${attribute.column} ${operator.operator} (\n${queryString}\n)`
-      const updatedConditions = conditions.map((queryString, i) => (
+      const updatedQueryString = `${type} ${attribute.column} ${operator.operator} (\n${valuesString}\n)`
+      const updatedConditions = conditions.map((condition, i) => (
          i === index
-            ? updatedQueryString
-            : queryString
+            ? {...condition, queryString: updatedQueryString}
+            : condition
       ));
       setConditions(updatedConditions);
    }
 
    const addCondition = () => {
-      setConditions([...conditions, '']);
+      setConditions([...conditions, {
+         id: Math.random(),
+         queryString: '',
+      }]);
+   }
+
+   const removeCondition = (index) => {
+      const remainingConditions = conditions.filter((condition, i) => i !== index);
+      setConditions(remainingConditions);
    }
 
    const [groups, setGroups] = useState([]);
@@ -42,37 +55,43 @@ export const Panel = ({ companyPanel, personPanel }) => {
       setGroups([...groups, '']);
    }
 
+   const removeGroup = (index) => {
+      const remainingGroups = groups.filter((group, i) => i !== index);
+      setGroups(remainingGroups);
+   }
+
    const [type, setType] = useState('AND');
    const handleSetType = () => {
       const updatedType = type === 'AND' ? 'OR' : 'AND';
-      const updatedConditions = conditions.map((queryString, i) => (
-         queryString.includes(type)
-            ? queryString.replace(type, updatedType)
-            : queryString
+      const updatedConditions = conditions.map((condition, i) => (
+         condition.queryString.includes(type)
+            ? {...condition, queryString: condition.queryString.replace(type, updatedType)}
+            : condition
       ));
-      const updatedGroups = groups.map((queryString, i) => (
-         queryString.includes(type)
-            ? queryString.replace(type, updatedType)
-            : queryString
-      ));
+      // const updatedGroups = groups.map((queryString, i) => (
+      //    queryString.includes(type)
+      //       ? queryString.replace(type, updatedType)
+      //       : queryString
+      // ));
       setConditions(updatedConditions);
-      setGroups(updatedGroups);
+      // setGroups(updatedGroups);
       setType(updatedType);
    }
 
    return (
       <div className="p-10">
          <CKBox className="p-2">
-            <div className="flex mx-3 my-2">
+            <div className="flex mx-2 mt-2 mb-4">
                <h2 className="font-semibold text-gray-900">Company Criteria</h2>
             </div>
             {conditions.map((condition, i) => (
                <Condition
-                  key={`Condition-${i}`}
+                  key={condition.id}
                   index={i}
                   type={type}
                   setType={handleSetType}
                   enrichmentType="company"
+                  removeCondition={removeCondition}
                   buildQueryString={buildQueryString}
                />
             ))}
@@ -82,6 +101,7 @@ export const Panel = ({ companyPanel, personPanel }) => {
                   index={i}
                   groupType={type}
                   groupSetType={handleSetType}
+                  removeGroup={removeGroup}
                   buildGroupString={buildGroupString}
                />
             ))}
@@ -95,6 +115,7 @@ export const Panel = ({ companyPanel, personPanel }) => {
                </CKButton>
                <CKButton
                   variant="tertiary"
+                  variantColor="blue"
                   leftIcon={<AddHollow />}
                   onClick={addGroup}>
                   Add group
@@ -103,7 +124,8 @@ export const Panel = ({ companyPanel, personPanel }) => {
          </CKBox>
          <CKMultilineTextField
             isReadOnly
-            value={`${conditions.join('\n')}\n${groups.join('\n')}`}
+            value={`${conditions.map(c => c.queryString).join('\n')}`}
+            // value={`${conditions.join('\n')}\n${groups.join('\n')}`}
             className="w-full mt-4 min-h-screen"
          />
          {/* <CKButton leftIcon={<AddHollow />} className="mt-5">Add group</CKButton> */}
