@@ -18,7 +18,7 @@ export const Condition = memo(({
    const [condition, setCondition] = useState({
       attribute: '',
       operator: '',
-      values: []
+      values: [],
    });
 
    useEffect(() => {

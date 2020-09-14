@@ -43,16 +43,20 @@ export const Panel = ({ companyPanel, personPanel }) => {
 
    const [groups, setGroups] = useState([]);
    const buildGroupString = (conditions, index) => {
+      const conditionStrings = conditions.map(c => c.queryString);
       const updatedGroups = groups.map((group, i) => (
          i === index
-            ? `${type} (\n  ${conditions.join('\n  ')}\n)`
+            ? {...group, groupString: `${type} (\n  ${conditionStrings.join('\n  ')}\n)`}
             : group
       ));
       setGroups(updatedGroups);
    }
 
    const addGroup = () => {
-      setGroups([...groups, '']);
+      setGroups([...groups, {
+         id: Math.random(),
+         groupString: '',
+      }]);
    }
 
    const removeGroup = (index) => {
@@ -68,13 +72,13 @@ export const Panel = ({ companyPanel, personPanel }) => {
             ? {...condition, queryString: condition.queryString.replace(type, updatedType)}
             : condition
       ));
-      // const updatedGroups = groups.map((queryString, i) => (
-      //    queryString.includes(type)
-      //       ? queryString.replace(type, updatedType)
-      //       : queryString
-      // ));
+      const updatedGroups = groups.map((group, i) => (
+         group.groupString.includes(type)
+            ? {...group, groupString: group.groupString.replace(type, updatedType)}
+            : group
+      ));
       setConditions(updatedConditions);
-      // setGroups(updatedGroups);
+      setGroups(updatedGroups);
       setType(updatedType);
    }
 
@@ -97,7 +101,7 @@ export const Panel = ({ companyPanel, personPanel }) => {
             ))}
             {groups.map((group, i) => (
                <Group
-                  key={`Group-${i}`}
+                  key={group.id}
                   index={i}
                   groupType={type}
                   groupSetType={handleSetType}
@@ -124,7 +128,7 @@ export const Panel = ({ companyPanel, personPanel }) => {
          </CKBox>
          <CKMultilineTextField
             isReadOnly
-            value={`${conditions.map(c => c.queryString).join('\n')}`}
+            value={`${conditions.map(c => c.queryString).join('\n')}\n${groups.map(g => g.groupString).join('\n')}`}
             // value={`${conditions.join('\n')}\n${groups.join('\n')}`}
             className="w-full mt-4 min-h-screen"
          />
