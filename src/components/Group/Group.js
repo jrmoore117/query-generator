@@ -7,26 +7,32 @@ import Trash from "@clearkit/icons/glyphs/Trash";
 
 export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupString }) => {
 
-   const [conditions, setConditions] = useState(['']);
-   const buildQueryString = (condition, conditionIndex) => {
+   const [conditions, setConditions] = useState([{
+      id: Math.random(),
+      queryString: '',
+   }]);
+   const buildQueryString = (condition, index) => {
       const { attribute, operator, values } = condition;
-      let queryString = '';
+      let valuesString = '';
       values.forEach((value, i) => {
          i === values.length - 1
-            ? queryString += `    '${value.value}'`
-            : queryString += `    '${value.value}',\n`
+            ? valuesString += `    '${value.value}'`
+            : valuesString += `    '${value.value}',\n`
       });
-      const updatedQueryString = `${type} ${attribute.column} ${operator.operator} (\n${queryString}\n  )`
-      const updatedConditions = conditions.map((queryString, i) => (
-         i === conditionIndex
-            ? updatedQueryString
-            : queryString
+      const updatedQueryString = `${type} ${attribute.column} ${operator.operator} (\n${valuesString}\n  )`
+      const updatedConditions = conditions.map((condition, i) => (
+         i === index
+            ? {...condition, queryString: updatedQueryString}
+            : condition
       ));
       setConditions(updatedConditions);
    }
 
    const addCondition = () => {
-      setConditions([...conditions, '']);
+      setConditions([...conditions, {
+         id: Math.random(),
+         queryString: '',
+      }]);
    }
 
    const removeCondition = (index) => {
@@ -37,10 +43,10 @@ export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupS
    const [type, setType] = useState('AND');
    const handleSetType = () => {
       const updatedType = type === 'AND' ? 'OR' : 'AND';
-      const updatedConditions = conditions.map((queryString, i) => (
-         queryString.includes(type)
-            ? queryString.replace(type, updatedType)
-            : queryString
+      const updatedConditions = conditions.map((condition, i) => (
+         condition.queryString.includes(type)
+            ? {...condition, queryString: condition.queryString.replace(type, updatedType)}
+            : condition
       ));
       setConditions(updatedConditions);
       setType(updatedType);
@@ -49,8 +55,6 @@ export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupS
    useEffect(() => {
       buildGroupString(conditions, index);
    }, [conditions, type]);
-
-   console.log("GROUP CONDITIONS: ", conditions);
 
    return (
       <div className="mx-2 mb-2 flex items-center">
@@ -63,7 +67,7 @@ export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupS
          <CKBox variant="tinted-frame" className="px-4 pt-6 pb-4 w-full">
             {conditions.map((condition, i) => (
                <Condition
-                  key={`Condition-${i}`}
+                  key={condition.id}
                   index={i}
                   type={type}
                   setType={handleSetType}
