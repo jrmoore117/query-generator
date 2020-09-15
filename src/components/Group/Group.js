@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { Condition } from '../../components';
 import { CKBox, CKBadge, CKButton } from '@clearkit/react';
 import Caret from "@clearkit/icons/glyphs/Caret";
 import AddBlock from "@clearkit/icons/glyphs/AddBlock";
 import Trash from "@clearkit/icons/glyphs/Trash";
 
-export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupString }) => {
+export const Group = memo(({ index, groupType, groupSetType, removeGroup, buildGroupString }) => {
 
    const [conditions, setConditions] = useState([{
       id: Math.random(),
@@ -35,8 +35,9 @@ export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupS
       }]);
    }
 
-   const removeCondition = (index) => {
-      const remainingConditions = conditions.filter((condition, i) => i !== index);
+   const removeCondition = (i) => {
+      if (conditions.length === 1) removeGroup(index);
+      const remainingConditions = conditions.filter((condition, j) => j !== i);
       setConditions(remainingConditions);
    }
 
@@ -96,4 +97,4 @@ export const Group = ({ index, groupType, groupSetType, removeGroup, buildGroupS
          </CKBox>
       </div>
    );
-}
+});
