@@ -55,7 +55,7 @@ export const Group = memo(({ index, groupType, groupSetType, removeGroup, buildG
 
    useEffect(() => {
       buildGroupString(conditions, index);
-   }, [conditions, type]);
+   }, [conditions, type, buildGroupString, index]);
 
    return (
       <div className="mx-2 mb-2 flex items-center">
